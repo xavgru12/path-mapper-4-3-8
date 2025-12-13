@@ -19,26 +19,26 @@ def collect_by_filename(folder):
     return result
 
 
-def main(folder1, folder2, output_json):
-    files1 = collect_by_filename(folder1)
-    files2 = collect_by_filename(folder2)
+def main(folderA, folderB, output_json):
+    filesA = collect_by_filename(folderA)
+    filesB = collect_by_filename(folderB)
 
     mapped = []
 
-    # Match by filename
-    for filename in sorted(files1.keys() & files2.keys()):
-        list1 = files1[filename]
-        list2 = files2[filename]
+    for filename in sorted(filesA.keys() & filesB.keys()):
+        pathsA = filesA[filename]
+        pathsB = filesB[filename]
 
-        # Cartesian product to handle multiple matches safely
-        for p1 in list1:
-            for p2 in list2:
-                mapped.append((p1, p2))
+        for pA in pathsA:
+            if len(pathsB) == 1:
+                mapped.append((pA, pathsB[0]))
+            else:
+                mapped.append((pA, pathsB))
 
     with open(output_json, "w", encoding="utf-8") as f:
         json.dump(mapped, f, indent=2)
 
-    print(f"Mapped {len(mapped)} file pairs")
+    print(f"Mapped {len(mapped)} entries")
     print(f"Output written to {output_json}")
 
 
