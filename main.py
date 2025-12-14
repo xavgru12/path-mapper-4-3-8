@@ -15,7 +15,8 @@ def collect_by_filename(folder):
     for root, _, files in os.walk(folder):
         for name in files:
             abs_path = os.path.join(root, name)
-            result[name].append(abs_path)
+            rel_path = os.path.relpath(abs_path, folder)
+            result[name].append(rel_path)
     return result
 
 
