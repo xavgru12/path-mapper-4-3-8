@@ -3,26 +3,30 @@
 import os
 import json
 import sys
+import argparse
 from collections import defaultdict
 
 
-def collect_by_filename(folder):
+def collect_by_filename(folder, relative):
     """
     Returns:
-    { filename : [absolute_path, ...] }
+    { filename : [path, ...] }
     """
     result = defaultdict(list)
     for root, _, files in os.walk(folder):
         for name in files:
             abs_path = os.path.join(root, name)
-            rel_path = os.path.relpath(abs_path, folder)
-            result[name].append(rel_path)
+            if relative:
+                path = os.path.relpath(abs_path, folder)
+            else:
+                path = os.path.abspath(abs_path)
+            result[name].append(path)
     return result
 
 
-def main(folderA, folderB, output_json):
-    filesA = collect_by_filename(folderA)
-    filesB = collect_by_filename(folderB)
+def main(folderA, folderB, output_json, relative):
+    filesA = collect_by_filename(folderA, relative)
+    filesB = collect_by_filename(folderB, relative)
 
     mapped = []
 
@@ -44,9 +48,16 @@ def main(folderA, folderB, output_json):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 4:
-        print(f"Usage: {sys.argv[0]} <folderA> <folderB> <output.json>")
-        sys.exit(1)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("folderA")
+    parser.add_argument("folderB")
+    parser.add_argument("output_json")
+    parser.add_argument(
+        "--relative",
+        action="store_true",
+        help="Store paths relative to the input folders (default: absolute paths)",
+    )
 
-    main(sys.argv[1], sys.argv[2], sys.argv[3])
+    args = parser.parse_args()
 
+    main(args.folderA, args.folderB, args.output_json, args.relative)
